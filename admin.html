@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mombasa Stays - Admin</title>
+    <style>
+        body { font-family: Arial; padding: 20px; max-width: 600px; margin: 0 auto; }
+        input, textarea, button { width: 100%; margin: 10px 0; padding: 10px; }
+        button { background: #25D366; color: white; border: none; cursor: pointer; }
+        .listing { border: 1px solid #ddd; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🏖️ Mombasa Stays Admin</h1>
+
+    <input type="password" id="adminKey" placeholder="Admin Key">
+
+    <h2>Add New Listing</h2>
+    <form id="listingForm">
+        <input type="text" id="title" placeholder="Title" required>
+        <textarea id="description" placeholder="Description" rows="3"></textarea>
+        <input type="number" id="price" placeholder="Price per night (KES)" required>
+        <input type="number" id="lat" placeholder="Latitude" step="any" required>
+        <input type="number" id="lng" placeholder="Longitude" step="any" required>
+        <input type="text" id="location_name" placeholder="Location (Nyali, Bamburi)" required>
+        <button type="submit">Add Listing</button>
+    </form>
+
+    <h2>Current Listings</h2>
+    <div id="listings"></div>
+
+<script>
+const API_URL = 'http://localhost:5000/api';
+
+async function loadListings() {
+    const res = await fetch(`${API_URL}/listings/nearby?lat=-4.0435&lng=39.7165&radius=5000`);
+    const listings = await res.json();
+
+    const div = document.getElementById('listings');
+    div.innerHTML = listings.map(l => `
+        <div class="listing">
+            <strong>${l.title}</strong> - KES ${l.price_kes}<br>
+            ${l.description || ''}<br>
+            📍 ${l.location_name || ''}<br>
+            📏 ${(l.distance/1000).toFixed(2)} km away
+        </div>
+    `).join('');
+}
+
+document.getElementById('listingForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const adminKey = document.getElementById('adminKey').value;
+
+    if (!adminKey) {
+        alert("Admin key required");
+        return;
+    }
+
+    const listing = {
+        host_id: 1,
+        title: document.getElementById('title').value,
+        description: document.getElementById('description').value,
+        price_kes: parseInt(document.getElementById('price').value),
+        latitude: parseFloat(document.getElementById('lat').value),
+        longitude: parseFloat(document.getElementById('lng').value),
+        location_name: document.getElementById('location_name').value
+    };
+
+    const key = document.getElementById('adminKey').value;
+
+    await fetch(`${API_URL}/admin/listings`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-admin-key': key
+        },
+        body: JSON.stringify(listing)
+    });
+
+    loadListings();
+    e.target.reset();
+});
+
+loadListings();
+</script>
+</body>
+</html>
