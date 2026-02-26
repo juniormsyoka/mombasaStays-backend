@@ -106,20 +106,23 @@ app.get('/api/listings/:id', async (req, res) => {
         const query = `
             SELECT 
                 l.*,
-                ST_X(l.location::geometry) AS longitude,
-                ST_Y(l.location::geometry) AS latitude,
+                ST_X(l.location::geometry) AS latitude,
+                ST_Y(l.location::geometry) AS longitude,
                 u.name AS host_name,
                 u.phone AS host_phone,
                 u.whatsapp AS host_whatsapp,
-                (
-                    SELECT json_agg(
-                        json_build_object(
-                            'id', li.id,
-                            'image_url', li.image_url
+                COALESCE(
+                    (
+                        SELECT json_agg(
+                            json_build_object(
+                                'id', li.id,
+                                'image_url', li.image_url
+                            )
                         )
-                    )
-                    FROM listing_images li
-                    WHERE li.listing_id = l.id
+                        FROM listing_images li
+                        WHERE li.listing_id = l.id
+                    ),
+                    '[]'::json
                 ) AS images
             FROM listings l
             JOIN users u ON l.host_id = u.id
@@ -135,7 +138,7 @@ app.get('/api/listings/:id', async (req, res) => {
         res.json(result.rows[0]);
 
     } catch (error) {
-        console.error(error);
+        console.error('Error fetching listing:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
