@@ -29,7 +29,8 @@
     <div id="listings"></div>
 
 <script>
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://mombasastays-backend.onrender.com '
+//'http://localhost:5000/api';
 
 async function loadListings() {
     const res = await fetch(`${API_URL}/listings/nearby?lat=-4.0435&lng=39.7165&radius=5000`);

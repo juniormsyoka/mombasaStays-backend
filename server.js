@@ -53,27 +53,37 @@ app.get('/api/listings/nearby', async (req, res) => {
     try {
         const query = `
             SELECT 
-                id,
-                host_id,
-                title,
-                description,
-                price_kes,
-                location_name,
-                is_featured,
-                ST_X(location::geometry) AS longitude,
-                ST_Y(location::geometry) AS latitude,
+                l.id,
+                l.host_id,
+                l.title,
+                l.description,
+                l.price_kes,
+                l.location_name,
+                l.is_featured,
+                ST_X(l.location::geometry) AS longitude,
+                ST_Y(l.location::geometry) AS latitude,
                 ST_Distance(
-                    location,
+                    l.location,
                     ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography
-                ) AS distance
-            FROM listings
-            WHERE is_active = true
+                ) AS distance,
+                (
+                    SELECT json_agg(
+                        json_build_object(
+                            'id', li.id,
+                            'image_url', li.image_url
+                        )
+                    )
+                    FROM listing_images li
+                    WHERE li.listing_id = l.id
+                ) AS images
+            FROM listings l
+            WHERE l.is_active = true
             AND ST_DWithin(
-                location,
+                l.location,
                 ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography,
                 $3
             )
-            ORDER BY is_featured DESC, distance ASC;
+            ORDER BY l.is_featured DESC, distance ASC;
         `;
 
         const values = [lng, lat, radius];
@@ -100,7 +110,17 @@ app.get('/api/listings/:id', async (req, res) => {
                 ST_Y(l.location::geometry) AS latitude,
                 u.name AS host_name,
                 u.phone AS host_phone,
-                u.whatsapp AS host_whatsapp
+                u.whatsapp AS host_whatsapp,
+                (
+                    SELECT json_agg(
+                        json_build_object(
+                            'id', li.id,
+                            'image_url', li.image_url
+                        )
+                    )
+                    FROM listing_images li
+                    WHERE li.listing_id = l.id
+                ) AS images
             FROM listings l
             JOIN users u ON l.host_id = u.id
             WHERE l.id = $1
@@ -113,6 +133,30 @@ app.get('/api/listings/:id', async (req, res) => {
         }
 
         res.json(result.rows[0]);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/* ================================
+
+/* ================================
+   GET LISTING IMAGES
+================================ */
+
+app.get('/api/listings/:id/images', async (req, res) => {
+    try {
+        const query = `
+            SELECT id, image_url
+            FROM listing_images
+            WHERE listing_id = $1
+            ORDER BY id;
+        `;
+
+        const result = await pool.query(query, [req.params.id]);
+        res.json(result.rows);
 
     } catch (error) {
         console.error(error);
