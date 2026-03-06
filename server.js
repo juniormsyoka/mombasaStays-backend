@@ -11,7 +11,7 @@ const app = express(); // ✅ FIRST create app
 
 // In your server.js, update CORS
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://your-admin-domain.com'],
+  origin: ['http://localhost:3000',  'http://localhost:5000', 'https://your-admin-domain.com'],
   credentials: true
 }));
 app.use(express.json());
@@ -191,9 +191,6 @@ app.get('/api/listings/:id/images', async (req, res) => {
 app.post('/api/admin/listings', async (req, res) => {
     const key = req.headers['x-admin-key'];
 
-    if (key !== process.env.ADMIN_KEY) {
-        return res.status(401).json({ error: 'Unauthorized' });
-    }
     const {
         host_id,
         title,
@@ -249,33 +246,95 @@ app.post('/api/admin/listings', async (req, res) => {
 });
 
 /* ================================
-   SUPERADMIN MIDDLEWARE
+   ADMIN/SUPERADMIN MIDDLEWARE
 ================================ */
 
-function requireAdmin(req, res, next) {
+async function requireAdmin(req, res, next) {
     const key = req.headers['x-admin-key'];
-    if (key !== process.env.ADMIN_KEY) {
-        return res.status(401).json({ error: 'Unauthorized' });
+    
+    if (!key) {
+        return res.status(401).json({ error: 'No admin key provided' });
     }
-    next();
+
+    try {
+        // Check if this key exists in the users table for admin or superadmin
+        const result = await pool.query(
+            `SELECT id, name, email, role FROM users 
+             WHERE secretkey = $1 AND role IN ('admin', 'superadmin')`,
+            [key]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(401).json({ error: 'Invalid admin key' });
+        }
+
+        // Attach admin info to request
+        req.admin = result.rows[0];
+        next();
+    } catch (error) {
+        console.error('Error validating admin key:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 }
 
+/* ================================
+   VALIDATE ADMIN KEY ENDPOINT
+   (For frontend login)
+================================ */
+
+app.post('/api/admin/validate', async (req, res) => {
+    const { key } = req.body;
+    
+    if (!key) {
+        return res.status(400).json({ error: 'Key required' });
+    }
+
+    try {
+        const result = await pool.query(
+            `SELECT id, name, email, role, is_verified 
+             FROM users 
+             WHERE secretkey = $1 AND role IN ('admin', 'superadmin')`,
+            [key]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(401).json({ error: 'Invalid admin key' });
+        }
+
+        // Update last login
+        await pool.query(
+            `UPDATE users SET last_active = NOW() WHERE id = $1`,
+            [result.rows[0].id]
+        );
+
+        res.json({ 
+            valid: true,
+            admin: {
+                id: result.rows[0].id,
+                name: result.rows[0].name,
+                email: result.rows[0].email,
+                role: result.rows[0].role
+            }
+        });
+
+    } catch (error) {
+        console.error('Error validating admin key:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 /* ================================
    SUPERADMIN: DASHBOARD STATS
 ================================ */
 
 app.get('/api/admin/stats', requireAdmin, async (req, res) => {
+    // This will now work with your database key
     try {
         const result = await pool.query(`
             SELECT
-                (SELECT COUNT(*) FROM users WHERE role = 'host')                          AS total_hosts,
-                (SELECT COUNT(*) FROM users WHERE role = 'host' AND is_verified = true)   AS verified_hosts,
-                (SELECT COUNT(*) FROM listings WHERE is_active = true)                    AS active_listings,
-                (SELECT COUNT(*) FROM listings WHERE is_active = false)                   AS inactive_listings,
-                (SELECT COUNT(*) FROM listings WHERE is_featured = true)                  AS featured_listings,
-                (SELECT COUNT(*) FROM subscriptions WHERE is_active = true)               AS active_subscriptions,
-                (SELECT COUNT(*) FROM subscriptions WHERE plan_type = 'featured' AND is_active = true) AS featured_subs,
-                (SELECT COUNT(*) FROM listings)                                           AS total_listings
+                (SELECT COUNT(*) FROM users WHERE role = 'host') AS total_hosts,
+                (SELECT COUNT(*) FROM users WHERE role = 'host' AND is_verified = true) AS verified_hosts,
+                (SELECT COUNT(*) FROM listings WHERE is_active = true) AS active_listings,
+                (SELECT COUNT(*) FROM listings) AS total_listings
         `);
         res.json(result.rows[0]);
     } catch (error) {

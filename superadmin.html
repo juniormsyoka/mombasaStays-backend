@@ -640,24 +640,33 @@ async function unlock() {
   if (!key) return;
 
   try {
-    const res = await fetch(`${API_URL}/api/admin/stats`, {
-      headers: { 'x-admin-key': key }
+    // Use the new validation endpoint
+    const res = await fetch(`${API_URL}/api/admin/validate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key })
     });
-    if (res.status === 401) {
+    
+    const data = await res.json();
+    
+    if (!res.ok || !data.valid) {
       document.getElementById('lockError').style.display = 'block';
       return;
     }
+    
     ADMIN_KEY = key;
     document.getElementById('lockScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
+    
+    // Store admin info if needed
+    console.log('Logged in as:', data.admin);
     init();
-  } catch {
+  } catch (error) {
     document.getElementById('lockError').style.display = 'block';
     document.getElementById('lockError').textContent = '❌ Cannot reach server. Check your connection.';
     document.getElementById('lockError').style.display = 'block';
   }
 }
-
 function logout() {
   ADMIN_KEY = '';
   document.getElementById('app').style.display = 'none';
