@@ -790,7 +790,12 @@ function hostRowHTML(h, compact) {
   return `<tr id="host-row-${h.id}">
     <td><div class="host-cell">
       <div class="host-avatar">${initials}</div>
-      <div class="host-info"><div class="name">${esc(h.name)}</div><div class="phone">${esc(h.phone)}</div></div>
+      <div class="host-info"><div class="name">${esc(h.name)}</div>
+      <div class="phone">${esc(h.phone)}</div>
+      </div>
+       <div class="secretkey" style="font-size: 10px; color: #666; font-family: monospace;">
+          🔑 ${esc(h.secretkey || 'No key')}
+        </div>
     </div></td>
     <td class="td-mono">${esc(h.whatsapp || '—')}</td>
     <td>${planBadge} ${isExpired ? '<span class="badge badge-red">Expired</span>' : ''}</td>

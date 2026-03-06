@@ -501,6 +501,7 @@
             <input type="password" id="adminKey" placeholder="Enter Admin Key">
             <button class="secondary" onclick="validateAdminKey()">Validate</button>
         </div>
+        <div id="adminInfo" style="font-size: 14px; color: #25D366; display: none;"></div>
     </div>
 
     <div id="message" class="message"></div>
@@ -765,6 +766,7 @@
 <script>
 const API_URL = 'https://mombasastays-backend.onrender.com';
 let currentAdminKey = '';
+let currentAdmin = null;
 let imageUrls = [];
 const MAX_IMAGES = 10;
 
@@ -877,14 +879,61 @@ function showMessage(text, type = 'success') {
     }, 5000);
 }
 
-function validateAdminKey() {
-    const key = document.getElementById('adminKey').value;
-    if (key) {
-        currentAdminKey = key;
-        showMessage('Admin key validated', 'success');
-    } else {
+// Replace your existing validateAdminKey with this
+async function validateAdminKey() {
+    const key = document.getElementById('adminKey').value.trim();
+    if (!key) {
         showMessage('Please enter admin key', 'error');
+        return;
     }
+
+    try {
+        const res = await fetch(`${API_URL}/api/admin/validate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key })
+        });
+        
+        const data = await res.json();
+        
+        if (!res.ok || !data.valid) {
+            showMessage('Invalid admin key', 'error');
+            return;
+        }
+        
+        currentAdminKey = key;
+        currentAdmin = data.admin;
+        
+        // Show success message with admin name
+        showMessage(`✅ Welcome ${data.admin.name}!`, 'success');
+        
+        // Hide key input section after successful login
+        document.querySelector('.admin-key-section').style.display = 'none';
+        
+        // Show admin info
+        const infoDiv = document.getElementById('adminInfo') || createAdminInfo();
+        infoDiv.innerHTML = `
+            <span style="color: #25D366;">👤 ${data.admin.name}</span>
+            <span style="color: #666; margin-left: 10px;">(${data.admin.role})</span>
+            <button onclick="logout()" style="margin-left: 15px; padding: 4px 10px; font-size: 12px;">Logout</button>
+        `;
+        infoDiv.style.display = 'block';
+        
+        // Reload listings with admin context
+        loadListings();
+        
+    } catch (error) {
+        showMessage('❌ Error validating key: ' + error.message, 'error');
+    }
+}
+
+// Add logout function
+function logout() {
+    currentAdminKey = '';
+    currentAdmin = null;
+    document.querySelector('.admin-key-section').style.display = 'flex';
+    document.getElementById('adminInfo').style.display = 'none';
+    showMessage('Logged out', 'info');
 }
 
 function switchTab(tab) {
