@@ -1,88 +1,1123 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Mombasa Stays - Admin</title>
+    <title>Mombasa Stays - Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { font-family: Arial; padding: 20px; max-width: 600px; margin: 0 auto; }
-        input, textarea, button { width: 100%; margin: 10px 0; padding: 10px; }
-        button { background: #25D366; color: white; border: none; cursor: pointer; }
-        .listing { border: 1px solid #ddd; padding: 10px; margin: 10px 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #f5f5f5;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .admin-key-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        #adminKey {
+            width: 250px;
+            margin: 0;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+        
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #25D366;
+            padding-bottom: 10px;
+        }
+        
+        h3 {
+            color: #333;
+            margin: 20px 0 15px;
+            font-size: 18px;
+        }
+        
+        h4 {
+            color: #555;
+            margin: 15px 0 10px;
+            font-size: 16px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .full-width {
+            grid-column: span 2;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #25D366;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+        
+        button {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+        }
+        
+        button:hover {
+            background: #128C7E;
+        }
+        
+        button.secondary {
+            background: #666;
+        }
+        
+        button.secondary:hover {
+            background: #444;
+        }
+        
+        .imgur-instructions {
+            background: #f8f9fa;
+            border: 2px solid #25D366;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .instruction-step {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background: #25D366;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .imgur-link {
+            color: #25D366;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        
+        .imgur-link:hover {
+            text-decoration: underline;
+        }
+        
+        .image-url-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .image-url-container input {
+            flex: 1;
+        }
+        
+        .image-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #ddd;
+        }
+        
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .image-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .image-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+        
+        .image-card .cover-badge {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: #25D366;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .image-card .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        .image-card .remove-btn:hover {
+            background: #dc3545;
+        }
+        
+        .image-card .image-url {
+            padding: 8px;
+            font-size: 10px;
+            background: #f5f5f5;
+            word-break: break-all;
+        }
+        
+        .add-image-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .amenities-container {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .amenity-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+        
+        .listings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .listing-card {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .listing-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        }
+        
+        .listing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+        
+        .listing-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        
+        .featured-badge {
+            background: #FFD700;
+            color: #000;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .listing-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #25D366;
+            margin: 10px 0;
+        }
+        
+        .listing-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin: 12px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .listing-images-preview {
+            display: flex;
+            gap: 5px;
+            margin: 10px 0;
+        }
+        
+        .listing-images-preview img {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+        
+        .amenities-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 12px 0;
+        }
+        
+        .amenity-tag {
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #555;
+        }
+        
+        .contact-info {
+            background: #f8f8f8;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+            font-size: 13px;
+            color: #888;
+        }
+        
+        .tab-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: #25D366;
+            color: white;
+        }
+        
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .info-box {
+            background: #e8f4fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .full-width {
+                grid-column: span 1;
+            }
+            
+            .images-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header {
+                flex-direction: column;
+            }
+            
+            .admin-key-section {
+                width: 100%;
+            }
+            
+            #adminKey {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>🏖️ Mombasa Stays Admin</h1>
+    <div class="header">
+        <h1>🏖️ Mombasa Stays Admin Dashboard</h1>
+        <div class="admin-key-section">
+            <input type="password" id="adminKey" placeholder="Enter Admin Key">
+            <button class="secondary" onclick="validateAdminKey()">Validate</button>
+        </div>
+    </div>
 
-    <input type="password" id="adminKey" placeholder="Admin Key">
+    <div id="message" class="message"></div>
 
-    <h2>Add New Listing</h2>
-    <form id="listingForm">
-        <input type="text" id="title" placeholder="Title" required>
-        <textarea id="description" placeholder="Description" rows="3"></textarea>
-        <input type="number" id="price" placeholder="Price per night (KES)" required>
-        <input type="number" id="lat" placeholder="Latitude" step="any" required>
-        <input type="number" id="lng" placeholder="Longitude" step="any" required>
-        <input type="text" id="location_name" placeholder="Location (Nyali, Bamburi)" required>
-        <button type="submit">Add Listing</button>
-    </form>
+    <div class="tab-bar">
+        <div class="tab active" onclick="switchTab('add')">➕ Add Listing</div>
+        <div class="tab" onclick="switchTab('view')">📋 View Listings</div>
+        <div class="tab" onclick="switchTab('inquiries')">💬 Inquiries</div>
+        <div class="tab" onclick="switchTab('stats')">📊 Stats</div>
+    </div>
 
-    <h2>Current Listings</h2>
-    <div id="listings"></div>
+    <div class="container">
+        <!-- Left Column: Add Listing Form -->
+        <div id="add-tab" class="tab-content">
+            <div class="card">
+                <h2>➕ Add New Listing</h2>
+                
+                <!-- Imgur Instructions Section -->
+                <div class="imgur-instructions">
+                    <h3 style="color: #25D366; margin-top: 0;">📸 How to Add Property Photos</h3>
+                    
+                    <div class="instruction-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Go to Imgur</strong><br>
+                            <a href="https://imgur.com/upload" target="_blank" class="imgur-link">https://imgur.com/upload</a>
+                            <span style="display: block; color: #666; margin-top: 5px;">Opens in new tab - no account needed</span>
+                        </div>
+                    </div>
+                    
+                    <div class="instruction-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>Upload your photos</strong><br>
+                            Drag & drop or click to select your property images<br>
+                            <span style="color: #666; font-size: 13px;">✅ Supported: JPG, PNG, GIF (max 20MB per image)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="instruction-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <strong>Copy the image link</strong><br>
+                            After upload, you'll see your image. On the right side, find and click "Copy Link"<br>
+                            <img src="https://i.imgur.com/example-copy-button.png" alt="Copy link button" style="max-width: 200px; margin-top: 10px; border: 1px solid #ddd; border-radius: 4px;" onerror="this.style.display='none'">
+                        </div>
+                    </div>
+                    
+                    <div class="instruction-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <strong>Paste the link below</strong><br>
+                            Come back here and paste the link in the "Image URL" field
+                        </div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <strong>💡 Pro Tips:</strong>
+                        <ul style="margin-top: 8px; margin-left: 20px;">
+                            <li>Upload 5-10 high-quality photos</li>
+                            <li>First image will be the cover photo</li>
+                            <li>Include: bedroom, bathroom, living area, kitchen, exterior, view</li>
+                            <li>Make sure photos are well-lit and clean</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Image URLs Section -->
+                <div style="margin-bottom: 30px;">
+                    <h4>📷 Property Images <span style="color: #666; font-weight: normal; font-size: 14px;">(Max 10 images, first is cover)</span></h4>
+                    
+                    <div id="imageCount" style="margin-bottom: 10px; font-size: 14px; color: #666;">
+                        0 of 10 images added
+                    </div>
+                    
+                    <!-- Add image form -->
+                    <div class="add-image-form">
+                        <input type="url" id="newImageUrl" placeholder="Paste Imgur link here (e.g., https://i.imgur.com/abc123.jpg)" style="flex: 1;">
+                        <button type="button" onclick="addImageUrl()" style="width: auto; padding: 12px 24px;">Add Image</button>
+                    </div>
+                    
+                    <!-- Quick paste hint -->
+                    <div style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                        ⏎ Press Enter after pasting to quickly add
+                    </div>
+                    
+                    <!-- Images grid -->
+                    <div id="imagesGrid" class="images-grid"></div>
+                </div>
+
+                <!-- Property Details Form -->
+                <form id="listingForm">
+                    <div class="form-grid">
+                        <div class="full-width">
+                            <label>Title *</label>
+                            <input type="text" id="title" placeholder="e.g., Beachfront Villa with Pool" required>
+                        </div>
+                        
+                        <div class="full-width">
+                            <label>Description</label>
+                            <textarea id="description" placeholder="Describe the property, amenities, nearby attractions..." rows="4"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label>Price (KES) *</label>
+                            <input type="number" id="price" placeholder="5000" min="1" required>
+                        </div>
+                        
+                        <div>
+                            <label>Cleaning Fee (KES)</label>
+                            <input type="number" id="cleaning_fee" placeholder="500" min="0" value="0">
+                        </div>
+                        
+                        <div>
+                            <label>Security Deposit (KES)</label>
+                            <input type="number" id="security_deposit" placeholder="1000" min="0" value="0">
+                        </div>
+                        
+                        <div>
+                            <label>Property Type *</label>
+                            <select id="property_type" required>
+                                <option value="">Select type</option>
+                                <option value="apartment">Apartment</option>
+                                <option value="house">House</option>
+                                <option value="villa">Villa</option>
+                                <option value="studio">Studio</option>
+                                <option value="hotel">Hotel Room</option>
+                                <option value="guesthouse">Guesthouse</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label>Bedrooms *</label>
+                            <input type="number" id="bedrooms" placeholder="2" min="1" required>
+                        </div>
+                        
+                        <div>
+                            <label>Bathrooms *</label>
+                            <input type="number" id="bathrooms" placeholder="2" min="1" step="0.5" required>
+                        </div>
+                        
+                        <div>
+                            <label>Max Guests *</label>
+                            <input type="number" id="max_guests" placeholder="4" min="1" required>
+                        </div>
+                        
+                        <div>
+                            <label>Min Stay (nights)</label>
+                            <input type="number" id="min_stay_nights" placeholder="1" min="1" value="1">
+                        </div>
+                        
+                        <div>
+                            <label>Check-in Time</label>
+                            <input type="time" id="check_in_time" value="14:00">
+                        </div>
+                        
+                        <div>
+                            <label>Check-out Time</label>
+                            <input type="time" id="check_out_time" value="10:00">
+                        </div>
+                        
+                        <div class="full-width">
+                            <label>Location Name *</label>
+                            <input type="text" id="location_name" placeholder="e.g., Nyali, Bamburi, Diani" required>
+                        </div>
+                        
+                        <div>
+                            <label>Latitude *</label>
+                            <input type="number" id="lat" placeholder="-4.0435" step="any" required>
+                        </div>
+                        
+                        <div>
+                            <label>Longitude *</label>
+                            <input type="number" id="lng" placeholder="39.7165" step="any" required>
+                        </div>
+                        
+                        <div>
+                            <label>Contact Phone</label>
+                            <input type="tel" id="contact_phone" placeholder="+254 XXX XXX XXX">
+                        </div>
+                        
+                        <div>
+                            <label>WhatsApp Number *</label>
+                            <input type="tel" id="whatsapp_number" placeholder="+254 XXX XXX XXX" required>
+                        </div>
+                        
+                        <div class="full-width">
+                            <label>Host ID *</label>
+                            <input type="number" id="host_id" placeholder="1" required>
+                            <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                                Contact admin if you don't know your Host ID
+                            </div>
+                        </div>
+                        
+                        <div class="full-width">
+                            <label>Amenities</label>
+                            <div class="amenities-container" id="amenities-container">
+                                <!-- Amenities will be populated by JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <div class="full-width">
+                            <label>Custom Amenities (comma-separated)</label>
+                            <input type="text" id="custom_amenities" placeholder="e.g., Smart TV, Coffee Maker, Beach Access">
+                        </div>
+                        
+                        <div class="full-width" style="display: flex; gap: 20px;">
+                            <label style="flex: none; display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" id="is_featured"> Featured Listing
+                            </label>
+                            <label style="flex: none; display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" id="is_active" checked> Active
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" id="submitBtn">Add Listing</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Column: View Listings -->
+        <div id="view-tab" class="tab-content" style="display: none;">
+            <div class="card">
+                <h2>📋 Current Listings</h2>
+                <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <input type="text" id="search" placeholder="Search listings..." style="flex: 1;">
+                    <select id="filter-type" style="width: 150px;">
+                        <option value="">All Types</option>
+                        <option value="apartment">Apartments</option>
+                        <option value="house">Houses</option>
+                        <option value="villa">Villas</option>
+                        <option value="studio">Studios</option>
+                    </select>
+                    <button class="secondary" onclick="loadListings()" style="width: auto; padding: 12px 24px;">⟳ Refresh</button>
+                </div>
+                <div id="listings" class="listings-grid"></div>
+            </div>
+        </div>
+
+        <!-- Inquiries Tab -->
+        <div id="inquiries-tab" class="tab-content" style="display: none;">
+            <div class="card">
+                <h2>💬 Recent Inquiries</h2>
+                <div id="inquiries">
+                    <div class="loading">Loading inquiries...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Tab -->
+        <div id="stats-tab" class="tab-content" style="display: none;">
+            <div class="card">
+                <h2>📊 Analytics</h2>
+                <div id="stats">
+                    <div class="loading">Loading statistics...</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <script>
-const API_URL = 'https://mombasastays-backend.onrender.com '
-//'http://localhost:5000/api';
+const API_URL = 'https://mombasastays-backend.onrender.com';
+let currentAdminKey = '';
+let imageUrls = [];
+const MAX_IMAGES = 10;
 
-async function loadListings() {
-    const res = await fetch(`${API_URL}/listings/nearby?lat=-4.0435&lng=39.7165&radius=5000`);
-    const listings = await res.json();
+// Common amenities list
+const COMMON_AMENITIES = [
+    'WiFi', 'Pool', 'Air Conditioning', 'Kitchen', 'Free Parking',
+    'TV', 'Washing Machine', 'Dryer', 'Beach Access', '24/7 Security',
+    'Backup Generator', 'Hot Water', 'Balcony', 'Ocean View',
+    'Pet Friendly', 'Elevator', 'Gym', 'Breakfast Included',
+    'Airport Transfer', 'Housekeeping', 'Iron', 'Hair Dryer'
+];
 
-    const div = document.getElementById('listings');
-    div.innerHTML = listings.map(l => `
-        <div class="listing">
-            <strong>${l.title}</strong> - KES ${l.price_kes}<br>
-            ${l.description || ''}<br>
-            📍 ${l.location_name || ''}<br>
-            📏 ${(l.distance/1000).toFixed(2)} km away
+// Initialize amenities checkboxes
+function initAmenities() {
+    const container = document.getElementById('amenities-container');
+    container.innerHTML = COMMON_AMENITIES.map(amenity => `
+        <div class="amenity-item">
+            <input type="checkbox" id="amenity-${amenity.replace(/\s+/g, '-')}" value="${amenity}">
+            <label for="amenity-${amenity.replace(/\s+/g, '-')}">${amenity}</label>
         </div>
     `).join('');
+}
+
+// Image handling functions
+function addImageUrl() {
+    const urlInput = document.getElementById('newImageUrl');
+    const url = urlInput.value.trim();
+    
+    if (!url) {
+        showMessage('Please enter an image URL', 'error');
+        return;
+    }
+    
+    // Validate URL
+    try {
+        new URL(url); // Will throw if invalid
+    } catch {
+        showMessage('Please enter a valid URL (including https://)', 'error');
+        return;
+    }
+    
+    // Check if it's an Imgur URL (optional but helpful)
+    if (!url.includes('imgur.com') && !url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+        if (!confirm('This doesn\'t look like an Imgur or image URL. Add anyway?')) {
+            return;
+        }
+    }
+    
+    if (imageUrls.length >= MAX_IMAGES) {
+        showMessage(`Maximum ${MAX_IMAGES} images allowed`, 'error');
+        return;
+    }
+    
+    imageUrls.push(url);
+    updateImagesGrid();
+    urlInput.value = '';
+    showMessage('Image added successfully', 'success');
+}
+
+function removeImage(index) {
+    imageUrls.splice(index, 1);
+    updateImagesGrid();
+    showMessage('Image removed', 'info');
+}
+
+function setCoverImage(index) {
+    const url = imageUrls[index];
+    imageUrls.splice(index, 1);
+    imageUrls.unshift(url);
+    updateImagesGrid();
+    showMessage('Cover image updated', 'success');
+}
+
+function updateImagesGrid() {
+    const grid = document.getElementById('imagesGrid');
+    const countDisplay = document.getElementById('imageCount');
+    
+    countDisplay.textContent = `${imageUrls.length} of ${MAX_IMAGES} images added`;
+    
+    if (imageUrls.length === 0) {
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 30px; background: #f9f9f9; border-radius: 8px; color: #666;">No images added yet. Add images using the form above.</div>';
+        return;
+    }
+    
+    grid.innerHTML = imageUrls.map((url, index) => `
+        <div class="image-card">
+            <img src="${url}" onerror="this.src='https://via.placeholder.com/300x200?text=Invalid+Image'" loading="lazy">
+            ${index === 0 ? '<div class="cover-badge">⭐ COVER</div>' : ''}
+            <button class="remove-btn" onclick="removeImage(${index})" title="Remove image">×</button>
+            ${index !== 0 ? `<button class="remove-btn" onclick="setCoverImage(${index})" style="right: 35px; background: #25D366;" title="Make cover">⭐</button>` : ''}
+            <div class="image-url">${url.substring(0, 30)}...</div>
+        </div>
+    `).join('');
+}
+
+// Handle Enter key for quick pasting
+document.getElementById('newImageUrl').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        addImageUrl();
+    }
+});
+
+function showMessage(text, type = 'success') {
+    const msg = document.getElementById('message');
+    msg.textContent = text;
+    msg.className = `message ${type}`;
+    setTimeout(() => {
+        msg.style.display = 'none';
+    }, 5000);
+}
+
+function validateAdminKey() {
+    const key = document.getElementById('adminKey').value;
+    if (key) {
+        currentAdminKey = key;
+        showMessage('Admin key validated', 'success');
+    } else {
+        showMessage('Please enter admin key', 'error');
+    }
+}
+
+function switchTab(tab) {
+    // Update tab buttons
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    // Show selected tab content
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.style.display = 'none';
+    });
+    document.getElementById(`${tab}-tab`).style.display = 'block';
+    
+    // Load data for specific tabs
+    if (tab === 'view') loadListings();
+    if (tab === 'inquiries') loadInquiries();
+    if (tab === 'stats') loadStats();
+}
+
+async function loadListings() {
+    const listingsDiv = document.getElementById('listings');
+    listingsDiv.innerHTML = '<div class="loading">Loading listings...</div>';
+    
+    try {
+        const search = document.getElementById('search').value;
+        const filterType = document.getElementById('filter-type').value;
+        
+        const res = await fetch(`${API_URL}/api/listings/nearby?lat=-4.0435&lng=39.7165&radius=10000`);
+        let listings = await res.json();
+        
+        // Apply filters
+        if (filterType) {
+            listings = listings.filter(l => l.property_type === filterType);
+        }
+        if (search) {
+            const searchLower = search.toLowerCase();
+            listings = listings.filter(l => 
+                l.title.toLowerCase().includes(searchLower) ||
+                (l.location_name && l.location_name.toLowerCase().includes(searchLower))
+            );
+        }
+        
+        if (listings.length === 0) {
+            listingsDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">No listings found</div>';
+            return;
+        }
+        
+        listingsDiv.innerHTML = listings.map(l => `
+            <div class="listing-card">
+                <div class="listing-header">
+                    <span class="listing-title">${l.title}</span>
+                    ${l.is_featured ? '<span class="featured-badge">⭐ FEATURED</span>' : ''}
+                </div>
+                
+                ${l.images && l.images.length > 0 ? `
+                    <div class="listing-images-preview">
+                        ${l.images.slice(0, 3).map(img => `
+                            <img src="${img.image_url || img}" onerror="this.src='https://via.placeholder.com/50'">
+                        `).join('')}
+                        ${l.images.length > 3 ? `<span style="font-size: 12px; color: #666;">+${l.images.length-3}</span>` : ''}
+                    </div>
+                ` : ''}
+                
+                <div class="listing-price">KES ${l.price_kes.toLocaleString()}/night</div>
+                
+                <div class="listing-details">
+                    <span class="detail-item">🛏️ ${l.bedrooms || '?'} beds</span>
+                    <span class="detail-item">🚿 ${l.bathrooms || '?'} baths</span>
+                    <span class="detail-item">👥 ${l.max_guests || '?'} guests</span>
+                    <span class="detail-item">🏠 ${l.property_type || 'N/A'}</span>
+                </div>
+                
+                <div class="amenities-preview">
+                    ${(l.amenities || []).slice(0, 4).map(a => 
+                        `<span class="amenity-tag">${a}</span>`
+                    ).join('')}
+                    ${(l.amenities?.length || 0) > 4 ? 
+                        `<span class="amenity-tag">+${l.amenities.length - 4} more</span>` : ''}
+                </div>
+                
+                <div class="contact-info">
+                    📍 ${l.location_name || 'Location not specified'}<br>
+                    📏 ${l.distance ? (l.distance/1000).toFixed(2) : '?'} km away<br>
+                    📱 WhatsApp: ${l.whatsapp_number || 'Not provided'}
+                </div>
+                
+                <div class="stats">
+                    <span>👁️ ${l.views_count || 0} views</span>
+                    <span>📱 ${l.whatsapp_clicks || 0} clicks</span>
+                    <span>⭐ ${l.average_rating || 'New'}</span>
+                </div>
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        listingsDiv.innerHTML = `<div class="loading">Error loading listings: ${error.message}</div>`;
+    }
+}
+
+async function loadInquiries() {
+    document.getElementById('inquiries').innerHTML = `
+        <div style="text-align: center; padding: 40px; color: #666;">
+            📊 Inquiries feature coming soon!<br>
+            <span style="font-size: 13px;">Track guest inquiries and responses here.</span>
+        </div>
+    `;
+}
+
+async function loadStats() {
+    document.getElementById('stats').innerHTML = `
+        <div style="text-align: center; padding: 40px; color: #666;">
+            📈 Analytics dashboard coming soon!<br>
+            <span style="font-size: 13px;">View views, clicks, and performance metrics here.</span>
+        </div>
+    `;
 }
 
 document.getElementById('listingForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const adminKey = document.getElementById('adminKey').value;
-
-    if (!adminKey) {
-        alert("Admin key required");
+    if (!currentAdminKey) {
+        showMessage('Please validate admin key first', 'error');
         return;
     }
 
+    // Validate images
+    if (imageUrls.length === 0) {
+        showMessage('Please add at least one image', 'error');
+        return;
+    }
+
+    // Collect selected amenities
+    const selectedAmenities = [];
+    document.querySelectorAll('#amenities-container input:checked').forEach(cb => {
+        selectedAmenities.push(cb.value);
+    });
+    
+    // Add custom amenities
+    const customAmenities = document.getElementById('custom_amenities').value
+        .split(',')
+        .map(a => a.trim())
+        .filter(a => a);
+    
+    const allAmenities = [...selectedAmenities, ...customAmenities];
+
+    // Prepare listing data
     const listing = {
-        host_id: 1,
+        host_id: parseInt(document.getElementById('host_id').value),
         title: document.getElementById('title').value,
         description: document.getElementById('description').value,
         price_kes: parseInt(document.getElementById('price').value),
+        cleaning_fee: parseInt(document.getElementById('cleaning_fee').value) || 0,
+        security_deposit: parseInt(document.getElementById('security_deposit').value) || 0,
+        property_type: document.getElementById('property_type').value,
+        bedrooms: parseInt(document.getElementById('bedrooms').value),
+        bathrooms: parseFloat(document.getElementById('bathrooms').value),
+        max_guests: parseInt(document.getElementById('max_guests').value),
+        min_stay_nights: parseInt(document.getElementById('min_stay_nights').value) || 1,
+        check_in_time: document.getElementById('check_in_time').value,
+        check_out_time: document.getElementById('check_out_time').value,
+        location_name: document.getElementById('location_name').value,
         latitude: parseFloat(document.getElementById('lat').value),
         longitude: parseFloat(document.getElementById('lng').value),
-        location_name: document.getElementById('location_name').value
+        contact_phone: document.getElementById('contact_phone').value,
+        whatsapp_number: document.getElementById('whatsapp_number').value,
+        amenities: allAmenities,
+        is_featured: document.getElementById('is_featured').checked,
+        is_active: document.getElementById('is_active').checked,
+        images: imageUrls // Array of image URLs
     };
 
-    const key = document.getElementById('adminKey').value;
+    // Validate required fields
+    if (!listing.host_id || !listing.title || !listing.price_kes || !listing.property_type || 
+        !listing.bedrooms || !listing.bathrooms || !listing.max_guests || !listing.location_name || 
+        !listing.latitude || !listing.longitude || !listing.whatsapp_number) {
+        showMessage('Please fill in all required fields', 'error');
+        return;
+    }
 
-    await fetch(`${API_URL}/admin/listings`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'x-admin-key': key
-        },
-        body: JSON.stringify(listing)
-    });
+    // Disable submit button
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Adding Listing...';
 
-    loadListings();
-    e.target.reset();
+    try {
+        const response = await fetch(`${API_URL}/api/admin/listings`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-admin-key': currentAdminKey
+            },
+            body: JSON.stringify(listing)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        showMessage('✅ Listing added successfully!', 'success');
+        
+        // Reset form
+        e.target.reset();
+        imageUrls = [];
+        updateImagesGrid();
+        initAmenities(); // Reset amenities checkboxes
+        
+        // Switch to view tab to see the new listing
+        setTimeout(() => {
+            document.querySelectorAll('.tab')[1].click();
+            loadListings();
+        }, 1500);
+        
+    } catch (error) {
+        showMessage(`❌ Error adding listing: ${error.message}`, 'error');
+    } finally {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Add Listing';
+    }
 });
 
+// Initialize on load
+initAmenities();
 loadListings();
+
+// Auto-refresh listings every 30 seconds if on view tab
+setInterval(() => {
+    if (document.getElementById('view-tab').style.display !== 'none') {
+        loadListings();
+    }
+}, 30000);
 </script>
 </body>
 </html>
