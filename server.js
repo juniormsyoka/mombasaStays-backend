@@ -16,6 +16,17 @@ app.use(cors({
 }));
 app.use(express.json());
 
+app.get('/', (req, res) => {
+    res.redirect('/superadmin.html');
+});
+
+app.get('/admin', (req, res) => {
+    res.redirect('/admin.html');
+});
+
+app.get('/superadmin', (req, res) => {
+    res.redirect('/superadmin.html');
+});
 // ✅ THEN serve static files
 app.use(express.static(path.join(__dirname)));
 
